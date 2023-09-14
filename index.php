@@ -49,6 +49,12 @@ foreach ($dataMenu as $menu) {
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <!-- DataTables Bootstrap JavaScript -->
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <style>
+        td,
+        th {
+            font-size: 11px;
+        }
+    </style>
     <title>Data Transaksi</title>
 </head>
 <body>
@@ -57,7 +63,7 @@ foreach ($dataMenu as $menu) {
             <div class="card-header">
                 Venturo - Laporan penjualan tahunan per menu
             </div>
-            <div class="card-body">
+            <div class="card-body" style="margin-bottom: -16px">
                 <form action="index.php" method="get">
                     <div class="row">
                         <div class="col-2">
@@ -69,7 +75,7 @@ foreach ($dataMenu as $menu) {
                                 </select>
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-6">
                             <button type="submit" class="btn btn-primary">
                                 Tampilkan
                             </button>
@@ -78,8 +84,8 @@ foreach ($dataMenu as $menu) {
                 </form>
                 <hr>
             </div>
-            <div class="table-responsive text-nowrap">
-                <table id="" class="table table-striped table-bordered">
+            <div class="table-responsive text-nowrap" style="padding: 0rem 1rem;">
+                <table class="table table-hover table-bordered">
                     <thead>
                         <tr class="table-dark">
                             <th rowspan="2" style="text-align:center; vertical-align: middle;">Menu</th>
@@ -107,6 +113,7 @@ foreach ($dataMenu as $menu) {
                         function formatToRupiah($number) {
                             return '' . number_format($number, 0, ',', ',');
                         }
+
                         foreach ($dataMenu as $menu) {
                             if ($menu['kategori'] === 'makanan') {
                                 echo '<tr>';
@@ -114,20 +121,21 @@ foreach ($dataMenu as $menu) {
 
                                 // Display monthly sales for each menu item
                                 foreach ($totalPenjualanPerBulan[$tahun] as $bulan => $menuData) {
-                                    // Check if data exists, otherwise display 0
+                                    // Check if data exists and is not equal to 0, otherwise display nothing
                                     $income = $menuData[$menu['menu']] ?? 0;
-                                    echo '<td>' . formatToRupiah($menuData[$menu['menu']] ?? 0) . '</td>';
+                                    echo $income !== 0 ? '<td>' . formatToRupiah($income) . '</td>' : '<td></td>';
                                     $monthNumber = date('n', strtotime($bulan));
                                     $monthlySums[$monthNumber] += $income;
                                 }
 
                                 // Display total income for each menu item
-                                echo "<td>" . formatToRupiah($totalPendapatanMenu[$menu['menu']]) . " </td>";
-
+                                $totalIncome = $totalPendapatanMenu[$menu['menu']] ?? 0;
+                                echo $totalIncome !== 0 ? '<td>' . formatToRupiah($totalIncome) . '</td>' : '<td></td>';
                                 echo '</tr>';
                             }
                         }
                         ?>
+
                         <td class="table-secondary" colspan="14"><b>Minuman</b></td>
                         <?php
                         foreach ($dataMenu as $menu) {
@@ -137,27 +145,26 @@ foreach ($dataMenu as $menu) {
 
                                 // Display monthly sales for each menu item
                                 foreach ($totalPenjualanPerBulan[$tahun] as $bulan => $menuData) {
-                                    // Check if data exists, otherwise display 0
+                                    // Check if data exists and is not equal to 0, otherwise display nothing
                                     $income = $menuData[$menu['menu']] ?? 0;
-                                    echo '<td>' . formatToRupiah($menuData[$menu['menu']] ?? 0) . '</td>';
+                                    echo $income !== 0 ? '<td>' . formatToRupiah($income) . '</td>' : '<td></td>';
                                     $monthNumber = date('n', strtotime($bulan));
                                     $monthlySums[$monthNumber] += $income;
                                 }
 
                                 // Display total income for each menu item
-                                echo "<td>" . formatToRupiah($totalPendapatanMenu[$menu['menu']]) . "</td>";
-
+                                $totalIncome = $totalPendapatanMenu[$menu['menu']] ?? 0;
+                                echo $totalIncome !== 0 ? '<td>' . formatToRupiah($totalIncome) . '</td>' : '<td></td>';
                                 echo '</tr>';
                             }
                         }
                         ?>
                     </tbody>
                     <tr class="table-dark">
-                        <td>Total</td>
                         <?php
                         // Display the monthly sums
-                        echo '<tr>';
-                        echo '<td class="table-secondary"><b>Total per Bulan</b></td>';
+                        echo '<tr class="table-dark">';
+                        echo '<td>Total</td>';
                         for ($i = 1; $i <= 12; $i++) {
                             echo '<td>' . formatToRupiah($monthlySums[$i]) . '</td>';
                         }
