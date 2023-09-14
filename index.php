@@ -22,16 +22,19 @@ foreach ($dataTransaksi as $transaksi) {
     }
 }
 
-// Inisialisasi array untuk menyimpan total pendapatan per menu
+// Menghitung total pendapatan per menu
 $totalPendapatanMenu = [];
 
-// Menghitung total pendapatan per menu
-foreach ($dataMenu as $menu) {
-    $totalPendapatanMenu[$menu['menu']] = 0;
-    foreach ($totalPenjualanPerBulan[$tahun] as $menuData) {
-        $totalPendapatanMenu[$menu['menu']] += $menuData[$menu['menu']] ?? 0;
+// Memastikan $totalPenjualanPerBulan[$tahun] adalah array sebelum melakukan foreach
+if (isset($totalPenjualanPerBulan[$tahun]) && is_array($totalPenjualanPerBulan[$tahun])) {
+    foreach ($dataMenu as $menu) {
+        $totalPendapatanMenu[$menu['menu']] = 0;
+        foreach ($totalPenjualanPerBulan[$tahun] as $menuData) {
+            $totalPendapatanMenu[$menu['menu']] += $menuData[$menu['menu']] ?? 0;
+        }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -70,8 +73,8 @@ foreach ($dataMenu as $menu) {
                             <div class="form-group">
                                 <select name="tahun" id="select" class="form-control">
                                     <option value="">Pilih Tahun</option>
-                                    <option value="2021" selected="">2021</option>
-                                    <option value="2022">2022</option>
+                                    <option value="2021"<?= $tahun == "2021" ? ' selected' : '' ?>>2021</option>
+                                    <option value="2022"<?= $tahun == "2022" ? ' selected' : '' ?>>2022</option>
                                 </select>
                             </div>
                         </div>
@@ -84,6 +87,10 @@ foreach ($dataMenu as $menu) {
                 </form>
                 <hr>
             </div>
+            <?php
+            // Tambahkan kondisi untuk menampilkan tabel hanya jika tahun dipilih
+            if ($tahun) {
+            ?>
             <div class="table-responsive text-nowrap" style="padding: 0rem 1rem;">
                 <table class="table table-hover table-bordered">
                     <thead>
@@ -118,6 +125,7 @@ foreach ($dataMenu as $menu) {
                             if ($menu['kategori'] === 'makanan') {
                                 echo '<tr>';
                                 echo '<td>' . $menu['menu'] . '</td>';
+
                                 for ($i = 1; $i <= 12; $i++) {
                                     $bulan = date('M', strtotime("$tahun-$i-01"));
                                     $menuData = $totalPenjualanPerBulan[$tahun][$bulan] ?? [];
@@ -130,7 +138,7 @@ foreach ($dataMenu as $menu) {
 
                                 // Display total income for each menu item
                                 $totalIncome = $totalPendapatanMenu[$menu['menu']] ?? 0;
-                                echo $totalIncome !== 0 ? '<td>' . formatToRupiah($totalIncome) . '</td>' : '<td></td>';
+                                echo $totalIncome !== 0 ? '<td class="fw-bold">' . formatToRupiah($totalIncome) . '</td>' : '<td></td>';
                                 echo '</tr>';
                             }
                         }
@@ -155,7 +163,7 @@ foreach ($dataMenu as $menu) {
 
                                 // Display total income for each menu item
                                 $totalIncome = $totalPendapatanMenu[$menu['menu']] ?? 0;
-                                echo $totalIncome !== 0 ? '<td>' . formatToRupiah($totalIncome) . '</td>' : '<td></td>';
+                                echo $totalIncome !== 0 ? '<td class="fw-bold">' . formatToRupiah($totalIncome) . '</td>' : '<td></td>';
                                 echo '</tr>';
                             }
                         }
@@ -167,14 +175,21 @@ foreach ($dataMenu as $menu) {
                         echo '<tr class="table-dark">';
                         echo '<td>Total</td>';
                         for ($i = 1; $i <= 12; $i++) {
-                            echo '<td>' . formatToRupiah($monthlySums[$i]) . '</td>';
+                            $monthlySum = formatToRupiah($monthlySums[$i]);
+                            echo ($monthlySums !== 0 && $monthlySum !== '0') ? '<td class="fw-bold">' . $monthlySum . '</td>' : '<td></td>';
                         }
-                        echo '<td>' . formatToRupiah(array_sum($monthlySums)) . '</td>';
+                        $totalMonthlySum = formatToRupiah(array_sum($monthlySums));
+                        echo ($monthlySums !== 0 && $totalMonthlySum !== '0') ? '<td class="fw-bold">' . $totalMonthlySum . '</td>' : '<td></td>';
                         echo '</tr>';
                         ?>
                     </tr>
                 </table>
             </div>
+            <?php
+            } else {
+                echo '<div class="alert alert-info">Pilih tahun untuk menampilkan data.</div>';
+            }
+            ?>
         </div>
     </div>
     <script>
