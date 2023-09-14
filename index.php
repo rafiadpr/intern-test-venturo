@@ -118,14 +118,14 @@ foreach ($dataMenu as $menu) {
                             if ($menu['kategori'] === 'makanan') {
                                 echo '<tr>';
                                 echo '<td>' . $menu['menu'] . '</td>';
-
-                                // Display monthly sales for each menu item
-                                foreach ($totalPenjualanPerBulan[$tahun] as $bulan => $menuData) {
+                                for ($i = 1; $i <= 12; $i++) {
+                                    $bulan = date('M', strtotime("$tahun-$i-01"));
+                                    $menuData = $totalPenjualanPerBulan[$tahun][$bulan] ?? [];
+                                
                                     // Check if data exists and is not equal to 0, otherwise display nothing
                                     $income = $menuData[$menu['menu']] ?? 0;
                                     echo $income !== 0 ? '<td>' . formatToRupiah($income) . '</td>' : '<td></td>';
-                                    $monthNumber = date('n', strtotime($bulan));
-                                    $monthlySums[$monthNumber] += $income;
+                                    $monthlySums[$i] += $income;
                                 }
 
                                 // Display total income for each menu item
@@ -142,14 +142,15 @@ foreach ($dataMenu as $menu) {
                             if ($menu['kategori'] === 'minuman') {
                                 echo '<tr>';
                                 echo '<td>' . $menu['menu'] . '</td>';
+                                // Mengganti foreach dengan loop for untuk mengakses data penjualan per bulan
+                                for ($i = 1; $i <= 12; $i++) {
+                                    $bulan = date('M', strtotime("$tahun-$i-01"));
+                                    $menuData = $totalPenjualanPerBulan[$tahun][$bulan] ?? [];
 
-                                // Display monthly sales for each menu item
-                                foreach ($totalPenjualanPerBulan[$tahun] as $bulan => $menuData) {
                                     // Check if data exists and is not equal to 0, otherwise display nothing
                                     $income = $menuData[$menu['menu']] ?? 0;
                                     echo $income !== 0 ? '<td>' . formatToRupiah($income) . '</td>' : '<td></td>';
-                                    $monthNumber = date('n', strtotime($bulan));
-                                    $monthlySums[$monthNumber] += $income;
+                                    $monthlySums[$i] += $income;
                                 }
 
                                 // Display total income for each menu item
